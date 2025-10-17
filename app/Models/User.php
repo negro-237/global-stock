@@ -52,17 +52,4 @@ class User extends Authenticatable
     public function account(): BelongsTo {
         return $this->belongsTo(Account::class);
     }
-
-    public function scopeUnsynced($query)
-    {
-        return $query->where('synced', false);
-    }
-
-    public function markAsSynced()
-    {
-        $this->update([
-            'synced' => true,
-            'last_synced_at' => now()
-        ]);
-    }
 }

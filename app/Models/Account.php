@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\{hasManyThrough, HasMany};
 
 class Account extends Model
 {
@@ -16,16 +16,13 @@ class Account extends Model
         return $this->hasMany(User::class);
     }
 
-    public function scopeUnsynced($query)
+    public function categories(): HasMany
     {
-        return $query->where('synced', false);
+        return $this->hasMany(Category::class);
     }
 
-    public function markAsSynced()
+    public function products(): hasManyThrough
     {
-        $this->update([
-            'synced' => true,
-            'last_synced_at' => now()
-        ]);
+        return $this->hasManyThrough(Product::class, Category::class);
     }
 }
