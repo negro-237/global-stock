@@ -26,6 +26,16 @@ class Account extends Model
         return $this->hasManyThrough(Product::class, Category::class);
     }
 
+    public function customers(): HasMany
+    {
+        return $this->hasMany(Customer::class);
+    }
+
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
+
     public function supplies()
     {
         return Supply::whereHas('product.category', function ($query) {

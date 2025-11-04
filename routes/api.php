@@ -3,8 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Auth\LoginController;
-use App\Http\Controllers\API\CategoryController;
-use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\{
+    OrderController,
+    CategoryController,
+    ProductController,
+    CustomerController
+};
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -17,6 +21,8 @@ Route::middleware('auth:sanctum')->group(function ($route) {
     $route->apiResource('categories', CategoryController::class);
     $route->post('products/{id}/supplies', [ProductController::class, 'supply']);
     $route->apiResource('products', ProductController::class);
+    $route->apiResource('orders', OrderController::class);
+    $route->apiResource('customers', CustomerController::class);
    /*  $route->group(['middleware' => ['role:admin']], function ($route) {
         $route->apiResource('categories', CategoryController::class);
     }); */
