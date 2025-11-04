@@ -22,4 +22,9 @@ class Category extends Model
         return $this->belongsTo(Account::class);
     }
 
+    public function supplies(): \Illuminate\Database\Eloquent\Relations\HasManyThrough
+    {
+        return $this->hasManyThrough(Supply::class, Product::class);
+    }
+
 }

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Repositories\ProductRepository;
+use App\Repositories\{ProductRepository};
 
 class ProductController extends BaseController
 {
@@ -18,12 +18,20 @@ class ProductController extends BaseController
     {
         //$this->middleware(['role:admin|sondeur|operateur|client|analyste laboratoire']);
         $this->productRepository = $productRepository;
-        $this->accountRepository = $productRepository;
+        //$this->accountRepository = $productRepository;
+
     }
 
     public function index(Request $request)
     {
-        return $this->sendResponse($request->user()->account->products, 'Categories retrieved successfully');
+
+        $data = [
+            'products' => $request->user()->account->products->toArray(),
+            'supplies' => $request->user()->account->supplies()->get(),
+            'categories' => $request->user()->account->categories->toArray(),
+        ];
+
+        return $this->sendResponse($data, 'Categories retrieved successfully');
     }
 
     public function store(Request $request)
@@ -74,7 +82,12 @@ class ProductController extends BaseController
             return $this->sendError('Product not found');
         }
 
-        return $this->sendResponse($product->toArray(), 'Product retrieved successfully');
+        $data = [
+            'product' => $product->toArray(),
+            'supplies' => $product->supplies()->get()->toArray(),
+        ];
+
+        return $this->sendResponse($data, 'Product retrieved successfully');
     }
 
     public function update(Request $request, $id)
@@ -117,7 +130,7 @@ class ProductController extends BaseController
 
     public function supply($id, Request $request) {
 
-        $validator = \Validator::make($input, [
+        $validator = \Validator::make($request->all(), [
             'quantity' => 'sometimes|required|regex:/^\d+(\.\d{1,2})?$/',
         ]);
 

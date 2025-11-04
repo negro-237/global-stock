@@ -25,4 +25,11 @@ class Account extends Model
     {
         return $this->hasManyThrough(Product::class, Category::class);
     }
+
+    public function supplies()
+    {
+        return Supply::whereHas('product.category', function ($query) {
+            $query->where('account_id', $this->id);
+        });
+    }
 }
