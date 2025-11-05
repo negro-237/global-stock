@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Repositories\{ CustomerRepository };
+use App\Repositories\{ CustomerRepository, ProductRepository };
 use Illuminate\Http\Request;
 
 class CustomerController extends BaseController
@@ -11,20 +11,31 @@ class CustomerController extends BaseController
     protected $customerRepository;
 
     public function __construct(
-            CustomerRepository $customerRepository
+            CustomerRepository $customerRepository,
+            ProductRepository $productRepository
         )
     {
         //$this->middleware(['role:admin|sondeur|operateur|client|analyste laboratoire']);
         $this->customerRepository = $customerRepository;
+        $this->productRepository = $productRepository;
     }
 
     public function index(Request $request)
     {
         $customers = $this->customerRepository->all(
             ['account_id' => $request->user()->account_id]
-        );
+        )->sortBy('name')->values();
 
-        return $this->sendResponse($customers->toArray(), 'Customers retrieved successfully');
+        $products = $this->productRepository->all(
+            ['account_id' => $request->user()->account_id]
+        )->sortBy('name')->values();
+
+        $data = [
+            'customers' => $customers,
+            'products' => $products
+        ];
+
+        return $this->sendResponse($data, 'Customers retrieved successfully');
     }
 
     public function store(Request $request)

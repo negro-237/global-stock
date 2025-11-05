@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Customer extends Model
 {
@@ -21,5 +22,12 @@ class Customer extends Model
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => strtolower($value)
+        );
     }
 }

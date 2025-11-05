@@ -39,4 +39,11 @@ class Product extends Model
     {
         return $this->supplies()->sum('quantity');
     }
+
+    protected function name(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => strtolower($value)
+        );
+    }
 }
