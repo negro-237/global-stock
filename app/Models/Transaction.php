@@ -12,6 +12,15 @@ class Transaction extends Model
         'quantity',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'product_id' => 'integer',
+            'order_id' => 'integer',
+            'quantity' => 'double'
+        ];
+    }
+
     public function product(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Product::class);

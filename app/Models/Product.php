@@ -13,7 +13,17 @@ class Product extends Model
         'description'
     ];
 
+
     protected $appends = ['category_name', 'quantity'];
+
+    protected function casts(): array
+    {
+        return [
+            'name' => 'string',
+            'category_id' => 'integer',
+            'price' => 'double'
+        ];
+    }
 
     public function category(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Order extends Model
 {
@@ -10,6 +11,8 @@ class Order extends Model
         'customer_id',
         'account_id'
     ];
+
+    protected $appends = ['client', 'amount'];
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -24,5 +27,19 @@ class Order extends Model
     public function account(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function getAmountAttribute()
+    {
+        $amount = $this->transactions->sum(function($trx) {
+            return $trx->quantity * $trx->product->price;
+        });
+
+        return number_format($amount, 0, '', ' ');
+    }
+
+    protected function getClientAttribute(): string
+    {
+        return $this->customer->name;
     }
 }

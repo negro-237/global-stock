@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController as BaseController;
 use App\Repositories\{ TransactionRepository, OrderRepository, CustomerRepository };
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends BaseController
 {
@@ -40,6 +41,7 @@ class OrderController extends BaseController
         // Validate that 'customer_id' and 'account_id' exist
         $validator = \Validator::make($input, [
             'customer_id' => 'required|integer|exists:customers,id',
+            'products' => 'required|array'
         ]);
 
         if ($validator->fails()) {
@@ -48,7 +50,19 @@ class OrderController extends BaseController
 
         $input['account_id'] = $request->user()->account_id;
 
-        $order = $this->orderRepository->create($input);
+        $order = DB::transaction(function () use ($input) {
+
+            $order = $this->orderRepository->create($input);
+
+            foreach($input['products'] as $product) {
+                $order->transactions()->create([
+                    'product_id' => $product['product_id'],
+                    'quantity' => $product['quantity']
+                ]);
+            }
+
+            return $order;
+        });
 
         return $this->sendResponse($order->toArray(), 'Order saved successfully');
     }
