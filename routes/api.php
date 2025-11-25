@@ -20,6 +20,7 @@ Route::middleware('auth:sanctum')->group(function ($route) {
     $route->post('logout', [LoginController::class, 'logout']);
     $route->apiResource('categories', CategoryController::class);
     $route->post('products/{id}/supplies', [ProductController::class, 'supply']);
+    $route->get('dashboard', [ProductController::class, 'dashboard']);
     $route->apiResource('products', ProductController::class);
     $route->apiResource('orders', OrderController::class);
     $route->apiResource('customers', CustomerController::class);

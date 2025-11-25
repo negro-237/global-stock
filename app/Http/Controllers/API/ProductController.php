@@ -13,7 +13,7 @@ class ProductController extends BaseController
     protected $accountRepository;
 
     public function __construct(
-            ProductRepository $productRepository,
+            ProductRepository $productRepository
         )
     {
         //$this->middleware(['role:admin|sondeur|operateur|client|analyste laboratoire']);
@@ -149,5 +149,58 @@ class ProductController extends BaseController
         ]);
 
         return $this->sendResponse($supply->toArray(), 'Supply record created successfully');
+    }
+
+    public function dashboard(Request $request) {
+
+        // Obtenir la date du jour
+        $today = now();
+
+        $months = collect([]);
+
+        $period = \Carbon\CarbonPeriod::create(now()->subMonths(12), '1 months', $today);
+
+        foreach($period as $p) {
+            $months->push($p);
+        }
+
+        $arr = [];
+        $transactions = collect([]);
+
+          // Récupérer le nombre de versements pour chaque mois
+          foreach($months as $month) {
+            // Obtenir la date de début du mois
+            $start = $month->startOfMonth()->format('Y-m-d');
+
+            // Obtenir la date de fin du mois
+            $end = $month->endOfMonth()->format('Y-m-d');
+
+            // Obtenir le nombre de versements
+            $trx = \App\Models\Transaction::whereBetween('created_at', [$start, $end])
+                    ->selectRaw('sum(quantity * (select price from products where products.id = transactions.product_id)) as amount')
+                    ->get()
+                    ->map(function ($item) {
+                        $item->amount = $item->amount ?? 0;
+                        return $item;
+                    });
+            foreach($trx as $t) {
+                $total = 0;
+                //$total += $t->quantity * $t->product->price;
+                $transactions->push($t->amount);
+            }
+
+            array_push($arr, $month->format('F'));
+            // Renvoyer le mois et le nombre de transactions
+        };
+
+        $data = [
+            'products' => $request->user()->account->products->count(),
+            'orders' => $request->user()->account->orders->count(),
+            'recents_orders' => $request->user()->account->orders()->latest()->take(5)->get(),
+            'sales' => $transactions,
+            'months' => $arr
+        ];
+
+        return $this->sendResponse($data, 'Dashboard');
     }
 }

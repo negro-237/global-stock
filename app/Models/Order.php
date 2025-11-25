@@ -12,7 +12,13 @@ class Order extends Model
         'account_id'
     ];
 
-    protected $appends = ['client', 'amount'];
+    protected $casts = [
+        'customer_id' => 'integer',
+        'account_id' => 'integer',
+        'created_at' => 'datetime:Y-m-d H:i:s'
+    ];
+
+    protected $appends = ['client', 'amount', 'products'];
 
     public function customer(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -41,5 +47,16 @@ class Order extends Model
     protected function getClientAttribute(): string
     {
         return $this->customer->name;
+    }
+
+    public function getProductsAttribute()
+    {
+        return $this->transactions->map(function($item) {
+            return [
+                'name' => $item->product->name,
+                'pu' => $item->product->price,
+                'quantity' => $item->quantity
+            ];
+        });
     }
 }
