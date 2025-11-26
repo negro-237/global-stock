@@ -6,6 +6,8 @@ use App\Http\Controllers\API\BaseController as BaseController;
 use App\Repositories\{ TransactionRepository, OrderRepository, CustomerRepository };
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Order;
+use PDF;
 
 class OrderController extends BaseController
 {
@@ -89,5 +91,13 @@ class OrderController extends BaseController
         $this->orderRepository->delete($id);
 
         return $this->sendResponse($id, 'Order deleted successfully');
+    }
+
+    public function downloadFacture(Order $order)
+    {
+        $pdf = PDF::loadView('pdf.facture', ['order' => $order]);
+        $filename = 'facture_'.$order->id.'.pdf';
+
+        return $pdf->download($filename);
     }
 }
