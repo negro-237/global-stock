@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->group(function ($route) {
     $route->post('products/{id}/supplies', [ProductController::class, 'supply']);
     $route->get('dashboard', [ProductController::class, 'dashboard']);
     $route->apiResource('products', ProductController::class);
-    Route::get('/orders/{order}/facture', [OrderController::class, 'downloadFacture']);
+    $route->get('/orders/{order}/facture', [OrderController::class, 'downloadFacture']);
     $route->apiResource('orders', OrderController::class);
     $route->apiResource('customers', CustomerController::class);
    /*  $route->group(['middleware' => ['role:admin']], function ($route) {

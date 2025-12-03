@@ -98,6 +98,12 @@ class OrderController extends BaseController
         $pdf = PDF::loadView('pdf.facture', ['order' => $order]);
         $filename = 'facture_'.$order->id.'.pdf';
 
-        return $pdf->download($filename);
+        //return $pdf->download($filename);
+        return response()->streamDownload(function () use ($pdf) {
+            echo $pdf->output();
+        }, 'facture_' . $order->id . '.pdf', [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="facture_' . $order->id . '.pdf"',
+        ]);
     }
 }
